@@ -1,7 +1,10 @@
-const express = require('express');
-const bcrypt  = require('bcrypt');
-const cors 		= require('cors');
-const knex		= require('knex')
+const { parse, stringify } = require('flatted/cjs');
+const express  = require('express');
+const bcrypt   = require('bcrypt');
+const cors 		 = require('cors');
+const knex		 = require('knex');
+const register = require('./controllers/register');
+const app      = express();
 
 const db = knex({
   client: 'pg',
@@ -12,68 +15,20 @@ const db = knex({
     database : 'smart-brain'
   }
 });
+const dbUsers = db.select('*').from('users');
 
-const database = {
-	users: [
-		{
-			id: '123',
-			name: "John",
-			email: "john@gmail.com",
-			entries: 0,
-			joined: new Date()
-		},
-		{
-			id: 124,
-			name: "Sally",
-			email: "sally@gmail.com",
-			entries: 0,
-			joined: new Date()
-		}
-	],
-	signin: [
-		{
-			id: '987',
-			hash: ''
-		}
-	]
-}
-
-const app = express();
 app.use(cors());
 app.use(express.json());
 
 app.get('/', (req,res) => {
-	console.log('get home path')
-	console.log('res:', res.json())
-	// res.json(database.users)
-})
+	// console.log(res.send(stringify(dbUsers)));
+	console.log(stringify(dbUsers));
+});
 
-app.get('/signout', (req,res) => {
-	console.log('get signout')
-	// res.json(database.users)
-})
+app.get('/signout', (req,res) => console.log(res.json(dbUsers)));
 
-app.post('/register', (req, res) => {
-	const { email, name, password } = req.body;
-	const passwordHash = bcrypt.hashSync(password, 10);
-	db.transaction(transaxn => 
-		transaxn.insert({ hash: passwordHash, email: email })
-		.into('login')
-		.returning('email')
-		.then(loginEmail => {
-			return transaxn('users')
-				.returning('*')
-				.insert({
-					name: name,
-					email: loginEmail[0],
-					joined: new Date()
-				})
-				.then(user => res.json(user[0]))
-		})
-		.then(transaxn.commit)
-		.catch(transaxn.rollback)
-	)
-	.catch(err => res.status(400).json('unable to register'));
+app.post('/register', (req, res) => { 
+	register.handleRegister(req, res, db, bcrypt);
 })
 
 app.post('/signin', (req, res) => {
@@ -82,7 +37,7 @@ app.post('/signin', (req, res) => {
 	.then(data => {
 		const isValid = bcrypt.compareSync(req.body.password, data[0].hash)
 		if (isValid) {
-			return db.select('*').from('users')
+			return dbUsers
 			.where('email', '=', req.body.email)
 			.then(user => res.json(user[0]))
 			.catch(err => res.status(400).json('Unable to find user'))

@@ -36,6 +36,7 @@ app.get('/signout', (req,res) => {
 app.get('/profile/:id', profile.handleProfile(dbUsers));
 
 app.put('/image', image.handleImage(db));
+app.post('/imageurl', image.handleApiCall());
 
 app.listen(3000, () => {
 	console.log('app is running on port 3000')

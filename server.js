@@ -5,6 +5,7 @@ const cors 		 = require('cors');
 const knex		 = require('knex');
 const register = require('./controllers/register');
 const signin   = require('./controllers/signin');
+const profile  = require('./controllers/profile');
 const app      = express();
 
 const db = knex({
@@ -38,18 +39,7 @@ app.get('/signout', (req,res) => {
 });
 
 app.get('/profile/:id', (req, res) => {
-	const { id } = req.params;
-	db.select('*').from('users').where({id})
-		.then(user=> {
-			if (user.length) {
-				res.json(user[0])
-			} else {
-				res.status(400).json('Profile not found')
-			}
-		})
-		.catch(err => {
-			res.status(400).json('Error connecting to database');
-		})
+	profile.handleProfile(req, res, db);
 })
 
 app.put('/image', (req, res) => {

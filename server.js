@@ -6,6 +6,7 @@ const knex		 = require('knex');
 const register = require('./controllers/register');
 const signin   = require('./controllers/signin');
 const profile  = require('./controllers/profile');
+const image    = require('./controllers/image');
 const app      = express();
 
 const db = knex({
@@ -43,14 +44,7 @@ app.get('/profile/:id', (req, res) => {
 })
 
 app.put('/image', (req, res) => {
-	const { id } = req.body;
-	const user = db('users').where('id', '=', id)
-	.increment('entries', 1)
-	.returning('entries')
-	.then(entries => res.json(entries))
-	.catch(err => {
-		res.status(400).json('Unable to update image count');
-	})
+	image.handleImage(req, res, db);
 })
 
 app.listen(3000, () => {

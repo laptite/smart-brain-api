@@ -32,7 +32,7 @@ app.post('/register', (req, res) => {
 })
 
 app.post('/signin', (req, res) => {
-	signin.handleSignin(req, res, db, bcrypt);
+	signin.handleSignin(req, res, db, dbUsers, bcrypt);
 })
 
 app.get('/signout', (req,res) => {
@@ -40,7 +40,7 @@ app.get('/signout', (req,res) => {
 });
 
 app.get('/profile/:id', (req, res) => {
-	profile.handleProfile(req, res, db);
+	profile.handleProfile(req, res, dbUsers);
 })
 
 app.put('/image', (req, res) => {

@@ -17,6 +17,7 @@ const handleRegister = (db, bcrypt) => (req, res) => {
           joined: new Date()
         })
         .then(user => res.json(user[0]))
+        .catch(err => console.error)
     })
     .then(transaxn.commit)
     .catch(transaxn.rollback)

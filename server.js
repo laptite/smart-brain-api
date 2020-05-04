@@ -9,10 +9,6 @@ const profile  = require('./controllers/profile');
 const image    = require('./controllers/image');
 const app      = express();
 
-// NOT TO BE USED IN PRODUCTION
-// npm config set strict-ssl=false
-process.env.NODE_TLS_REJECT_UNAUTHORIZED='0'
-
 const db = knex({
   client: 'pg',
   connection: {
